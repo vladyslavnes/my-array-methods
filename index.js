@@ -1,97 +1,107 @@
 
 Array.prototype.myForEach = function (callback,thisArg) {
-	if (typeof thisArg === 'undefined') // if some context is given manually
-		callback = callback.bind(thisArg); // bind it
-	for (var i = 0, len = this.length; i < len; i++) // loop through an array
-		callback(this[i], i, this); // and apply values for the callback
+	if (thisArg)
+		callback = callback.bind(thisArg);
+	for (var i = 0, len = this.length; i < len; i++)
+		callback(this[i], i, this);
 }
 
 Array.prototype.myMap = function (callback, thisArg) {
-	var retArr = new Array(this.length); // create array that will store all the values of the work of callback
+	var retArr = new Array(this.length);
 
-	if (typeof thisArg === 'undefined') // if some context is given manually
-		callback = callback.bind(thisArg); // bind it
+	if (thisArg)
+		callback = callback.bind(thisArg);
 
-	for (var i = 0, len = this.length; i < len; i++) // loop through an array
-		retArr[i] = callback(this[i]); // and make the corresponding cell have the value that callback returned
-	return retArr; // return that array
+	for (var i = 0; i < this.length; i++)
+		retArr[i] = callback(this[i],i);
+	return retArr;
 }
 
-console.timeEnd('myMap');
 
 Array.prototype.mySort = function (compareFunction) {
-	var args = [].slice.call([],arguments); // making an array out of pseudo-array
-	if (args.length === 0) { // if compare function is not given
-		compareFunction = function (a, b) { // assign it to default sort
+	if (!compareFunction) {
+		compareFunction = function (a, b) {
 			return String(a).charCodeAt(0) > String(b).charCodeAt(0);
 		};
 	}
 
-	var temp;
-	var changes;
-	do {
-		changes = 0;
-		for (var i = 0, len = this.length-1; i < len; i++) { // loop through an array
-			if (!!compareFunction(this[i],this[i + 1]) !== false) { // if condition does not work
-				// change values in place
-				temp = this[i]; // 5 | 5 4
-				this[i] = this[i + 1]; // 5 | 4 4
-				this[i + 1] = temp; // 5 | 4 5
-				changes++; 
-			}
+	var insertionSort = function(array, from, to) {
+		for (var i = from + 1; i < to; i++) {
+			var element = array[i];
+			for (var j = i - 1; j >= from; j--) {
+				var tmp = array[j];
+				var order = compareFunction(tmp, element);
+				if (order > 0) {
+					array[j + 1] = tmp;
+				} else break;
+      		}
+    	  array[j + 1] = element;
 		}
 	}
-	while (!!changes); // and when array is sorted already
-	return this; // return it
+
+	insertionSort(this,0,this.length);
+
+
+		// var temp;
+		// var curVal = +compareFunction(this[i],this[i + 1]);
+		// var lastVal = curVal;
+
+		// if (curVal !== this[0] + this[1]) { // a + b
+		// 	for (var i = 0; i < this.length-1; i++) {
+		// 		if ((curVal <= 1 || curVal > lastVal) && i >= 0) {
+		// 			temp = this[i];
+		// 			this[i] = this[i + 1];
+		// 			this[i + 1] = temp;
+		// 			i -= 2;
+		// 		}
+		// 	return this.reverse();
+		// 	}
+		// } else { // a - b
+
+	return this;
 }
 
-// TESTS
 
-var sample = [2,6,3,4,1,3,4,1,5,7]; // sample array which will used for testing
+var sample = [2,6,3,4,1,3,4,1,5,7];
 
-// Test myForEach
+/*
+	console.log('Test myForEach against native forEach:');
 
-console.log('Test myForEach against native forEach:');
+	console.time('forEach');
+	sample.forEach(function (element, index, array) {
+		console.log(element, index, array);
+	});
+	console.timeEnd('forEach');
 
-console.time('forEach');
-sample.forEach(function (element, index, array) {
-	console.log(element, index, array);
-});
-console.timeEnd('forEach');
-
-console.time('myForEach');
-sample.myForEach(function (element, index, array) {
-	console.log(element, index, array);
-});
-console.timeEnd('myForEach');
-
-// Test myMap
-
-console.log('Test myMap against native map:');
-
-console.time('map');
-var mapped = sample.map(function (element) {
-	return element * 2;
-});
-console.log(mapped);
-
-console.timeEnd('map');
+	console.time('myForEach');
+	sample.myForEach(function (element, index, array) {
+		console.log(element, index, array);
+	});
+	console.timeEnd('myForEach');
 
 
+	console.log('Test myMap against native map:');
 
-console.time('myMap');
-var myMapped = sample.myMap(function (element) {
-	return element * 2;
-});
-console.log(myMapped);
+	console.time('map');
+	var mapped = sample.map(function (element, index) {
+		return element + index;
+	});
+	console.log(mapped);
 
-console.timeEnd('myMap');
+	console.timeEnd('map');
+
+	console.time('myMap');
+	var myMapped = sample.myMap(function (element, index) {
+		return element + index;
+	});
+	console.log(myMapped);
+
+	console.timeEnd('myMap');
 
 
-// Test mySort
 
-console.log('Test mySort against native sort:');
-
+	console.log('Test mySort against native sort:');
+*/
 console.time('sort');
 var sorted = sample.sort(function (a,b) {
 	return a - b;
